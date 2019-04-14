@@ -8,8 +8,9 @@ public class QuickUnion extends QuickFinder {
 
     // add connection between p and q
     public void union(int p, int q) {
-        int rootValue = grid[p];
-        grid[q] = rootValue;
+        int rootId = find(p);
+        int childId = find(q);
+        grid[childId] = rootId;
     }
 
     // component identifier for p (0 to N – 1)
