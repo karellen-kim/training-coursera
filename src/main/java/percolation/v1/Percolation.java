@@ -8,37 +8,84 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Percolation implements BasePercolation {
-    int size;
-    int[] grid;
-    boolean[] opened;
-    int numberOfOpenSites;
+    private int gridSize;
+    private int numberOfOpenGrid;
+    private int[] grid;
+    private boolean[] openedGrid;
 
-    // create n-by-n grid, with all sites blocked
+    /**
+     * create n-by-n grid, with all sites blocked
+     */
     public Percolation(int n) {
-        size = n;
+        init(n);
+    }
+
+    /**
+     * uinon
+     * open site (row, col) if it is not open already
+     */
+    @Override
+    public void open(int row, int col) {
+        openGrid(row, col);
+
+        List<Integer> opendAdjacentIndexes = getOpendAdjacentGrids(row, col);
+        for (Integer adjacentIndex : opendAdjacentIndexes) {
+            connect(getIndex(row, col), adjacentIndex);
+        }
+    }
+
+    /**
+     * is site (row, col) open?
+     */
+    @Override
+    public boolean isOpen(int row, int col) {
+        return this.openedGrid[getIndex(row, col)];
+    }
+
+    /**
+     * is site (row, col) full? (is connected?)
+     */
+    @Override
+    public boolean isFull(int row, int col) {
+        return isOpen(row, col) && isFromTop(row, col);
+    }
+
+    /**
+     * number of open sites
+     */
+    @Override
+    public int numberOfOpenSites() {
+        return this.numberOfOpenGrid;
+    }
+
+    /**
+     * does the system percolate?
+     */
+    @Override
+    public boolean percolates() {
+        for (int c = 0; c < gridSize; c++) {
+            boolean isFull = isFull(gridSize, c + 1);
+            if (isFull) return true;
+        }
+        return false;
+    }
+
+    private void init(int n) {
+        gridSize = n;
         grid = new int[n * n];
-        opened = new boolean[n * n];
-        for (int i = 0 ; i < n ; i++) {
-            for (int j = 0 ; j < n ; j++) {
+        openedGrid = new boolean[n * n];
+        for (int i = 1 ; i <= n ; i++) {
+            for (int j = 1 ; j <= n ; j++) {
                 grid[getIndex(i, j)] = getIndex(i, j);
-                opened[getIndex(i, j)] = false;
+                openedGrid[getIndex(i, j)] = false;
             }
         }
     }
 
-    // uinon
-    // open site (row, col) if it is not open already
-    public void open(int cellRow, int cellCol) {
-        int row = cellRow - 1;
-        int col = cellCol - 1;
-        numberOfOpenSites++;
+    private void openGrid(int row, int col) {
+        numberOfOpenGrid++;
         int curIndex = getIndex(row, col);
-        this.opened[curIndex] = true;
-
-        List<Integer> opendAdjacentIndexes = getOpendAdjacentGrids(row, col);
-        for (Integer adjacentIndex : opendAdjacentIndexes) {
-            connect(curIndex, adjacentIndex);
-        }
+        this.openedGrid[curIndex] = true;
     }
 
     private void connect(int p, int q) {
@@ -60,34 +107,8 @@ public class Percolation implements BasePercolation {
         return curIndex;
     }
 
-    // is site (row, col) open?
-    public boolean isOpen(int cellRow, int cellCol) {
-        return this.opened[getIndex(cellRow - 1, cellCol - 1)];
-    }
-
-    // is site (row, col) full? (is connected?)
-    public boolean isFull(int cellRow, int cellCol) {
-        int index = getIndex(cellRow - 1, cellCol - 1);
-        int id = find(index);
-        return this.opened[index] && id >= 0 && id <= (size - 1);
-    }
-
-    // number of open sites
-    public int numberOfOpenSites() {
-        return this.numberOfOpenSites;
-    }
-
-    // does the system percolate?
-    public boolean percolates() {
-        for (int c = 0 ; c < size ; c++) {
-            boolean isFull = isFull(size, c + 1);
-            if (isFull) return true;
-        }
-        return false;
-    }
-
     private int getIndex(int row, int col) {
-        return row * size + col;
+        return (row - 1) * gridSize + (col - 1);
     }
 
     private List<Integer> getOpendAdjacentGrids(int row, int col) {
@@ -98,13 +119,18 @@ public class Percolation implements BasePercolation {
                 Arrays.asList(row, col + 1))
                 .stream()
                 .filter(item ->
-                        item.get(0) >= 0 && item.get(0) < size
-                                && item.get(1) >= 0 && item.get(1) < size);
+                        item.get(0) >= 1 && item.get(0) <= gridSize
+                                && item.get(1) >= 1 && item.get(1) <= gridSize);
 
         return validIndexes
-                .filter(item -> this.opened[getIndex(item.get(0),item.get(1))])
+                .filter(item -> this.openedGrid[getIndex(item.get(0), item.get(1))])
                 .map(item -> getIndex(item.get(0), item.get(1)))
                 .collect(Collectors.toList());
+    }
+
+    private boolean isFromTop(int row, int col) {
+        int id = find(getIndex(row, col));
+        return id >= 0 && id < gridSize;
     }
 
     // test client (optional)
