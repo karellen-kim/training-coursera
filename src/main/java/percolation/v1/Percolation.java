@@ -1,11 +1,13 @@
-package percolation;
+package percolation.v1;
+
+import percolation.BasePercolation;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Percolation {
+public class Percolation implements BasePercolation {
     int size;
     int[] grid;
     boolean[] opened;
@@ -67,7 +69,7 @@ public class Percolation {
     public boolean isFull(int cellRow, int cellCol) {
         int index = getIndex(cellRow - 1, cellCol - 1);
         int id = find(index);
-        return this.opened[index] && id >= 0 && id < (size - 1);
+        return this.opened[index] && id >= 0 && id <= (size - 1);
     }
 
     // number of open sites
@@ -78,7 +80,7 @@ public class Percolation {
     // does the system percolate?
     public boolean percolates() {
         for (int c = 0 ; c < size ; c++) {
-            boolean isFull = isFull(size - 1, c);
+            boolean isFull = isFull(size, c + 1);
             if (isFull) return true;
         }
         return false;

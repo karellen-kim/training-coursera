@@ -19,6 +19,7 @@ package percolation;
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
+import percolation.v1.Percolation;
 
 import java.awt.*;
 

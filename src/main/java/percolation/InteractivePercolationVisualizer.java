@@ -14,6 +14,7 @@ package percolation;
 
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
+import percolation.v1.Percolation;
 
 public class InteractivePercolationVisualizer {
 
